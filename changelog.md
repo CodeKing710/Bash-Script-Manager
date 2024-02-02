@@ -15,8 +15,8 @@ BSM v2 comes with a major overhaul under the hood to ensure a better user experi
 
 ### Version Info
 
-bsm: v2.2.1
-bsm-install: v2.0.7
+BSM: v2.5.2a
+BSM-Install: v2.2.0b
 
 __BSM Features__
 
@@ -27,9 +27,11 @@ __BSM Features__
 - Add/Link scripts to BSM directory
 - List scripts
 - Support to create and open non-existent scripts when using `-o`
-- ! NEW ! Export scipts to desired location
-- ! NEW ! Configure certain aspects of BSM
-- ! NEW ! Interactive mode for the less CLI-inclined (Base and Install)
+- Export scipts to desired location
+- Configure certain aspects of BSM
+- Interactive mode for the less CLI-inclined (Base and Install)
+- ! NEW ! Git Bash support
+- ! NEW ! STT (Script-to-Tool converter)
 
 __BSM-Install Features__
 
@@ -43,11 +45,18 @@ __BSM-Install Features__
 ### Features to Come (FTC)
 
 - Generate script files for quick-launching larger programs (i.e. start a web server for Node, Python, or Ruby)
-- Sample/System Tool scripts?
+- Sample/System Tool scripts
+- Tool Manager (add,remove,update tools)
 
 ### Extra commit messages
 
-_BSMv2 is basically ready for initial release_
-_Completed interactive mode_
-_Completed interactive mode bug fixes_
-_Squashed more bugs_
+__
+
+### BSM-Next
+
+__Features__
+
+- Add autocompletion for CLI users (command and arg modes)
+- Swap installer to repo-installer
+- Tool manager for managing toolset
+- Adjust BSM to be even more efficient and robust
