@@ -28,9 +28,9 @@ alias ipkg="sudo apt install"
 
 ### Other aliases ###
 # Git
-alias sync="git pull; git push origin"
+alias reposync="__cwd=\`pwd\`; for repo in ~/repos/*; do cd \$repo; echo \"\$repo\" | rev | cut -d '/' -f1 | rev; pull; push; echo \" \"; done; echo 'Repos up-to-date!'; cd \$__cwd; unset repo __cwd"
 alias pull="git pull"
-alias push="git push origin"
+alias push="git push"
 
 ### Rebound Aliases ###
 # Clear
