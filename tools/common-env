@@ -134,5 +134,8 @@ read -p "Would you like Repo Installer installed? [Y/n] " yn
 read -p "Would you like Change Path installed? [Y/n] " yn
 [[ "${yn,}" == 'y' ]] && ( cd $HOME/repos && git clone https://github.com/CodeKing710/Change-Path && cd Change-Path && cp ./Change-Path/chpath $HOME/bin; cd $__cwd )
 
+# Make all new bin scripts executable
+chmod u+x $HOME/bin/* 
+
 # Cleanup
 unset __alias __prompt __smartrm __smartcp __yn __kjob
