@@ -4,15 +4,11 @@
 
 # Vars
 repo="$(find ~ -type d -name "Bash-Script-Manager")"
-if [ -e /bsm/.bsm-vars ]; then
-  echo "Loading vars from BSM assets"
-  . /bsm/.bsm-vars
-elif [ -e ~/bsm/.bsm-vars ]; then
-  echo "Loading vars from BSM assets (Git Bash)"
-  . ~/bsm/.bsm-vars
+if [ -e ~/.bsm/.vars ]; then
+  . ~/.bsm/.vars
 else
-  echo "Loading vars from repo"
-  . $repo/.bsm-vars # Fallback to repo version
+  echo "Loading from repo..."
+  . $repo/.vars # Fallback to repo version
 fi
 version=$(cat $BSM_ROOT/.version | tail -1)
 help="cat $BSM_ROOT/.install-help"
@@ -20,43 +16,32 @@ help="cat $BSM_ROOT/.install-help"
 
 # Functions
 cpdeps() {
-  if [ $MSYSTEM ]; then
-    # Handle Git Bash integration
-    cp -f "$(find $repo -type f -name "bsm")" ~/bin/bsm && echo "Copy of BSM added to program registry!"
-    cp -f "$(find $repo -type f -name "rbsm")" ~/bin/rbsm
-    cp -f "$(find $repo -type f -name "bsm-install")" ~/bin/bsm-install && echo "Installer copied to system registry!"
-    cp -f "$(find $repo -type f -name ".version")" $BSM_ROOT/.version
-    cp -f "$(find $repo -type f -name ".bsm-vars")" $BSM_ROOT/.bsm-vars
-    cp -f "$(find $repo -type f -name ".bsm-funcs")" $BSM_ROOT/.bsm-funcs
-    # cp -f "$(find $repo -type f -name ".bsm-ac")" /etc/bash_completion.d/bsm-ac
-    cp -f "$(find $repo -type f -name ".help")" $BSM_ROOT/.help
-    cp -f "$(find $repo -type f -name ".install-help")" $BSM_ROOT/.install-help
-    if [[ ! -e $BSM_ROOT/.config ]]; then
-      cp -f "$(find $repo -type f -name "bsm.config")" $BSM_ROOT/.config
-    fi
-    cp -rf "$(find $repo -type d -name "tools")" $BSM_ROOT/
-  else
-    # Handle like any other Linux flavor
-    sudo cp -f "$(find $repo -type f -name "bsm")" /usr/local/bin/bsm && echo "Copy of BSM added to program registry!"
-    sudo cp -f "$(find $repo -type f -name "rbsm")" /usr/local/bin/rbsm
-    sudo cp -f "$(find $repo -type f -name "bsm-install")" /usr/local/sbin/bsm-install && echo "Installer copied to system registry!"
-    cp -f "$(find $repo -type f -name ".version")" $BSM_ROOT/.version
-    cp -f "$(find $repo -type f -name ".bsm-vars")" $BSM_ROOT/.bsm-vars
-    cp -f "$(find $repo -type f -name ".bsm-funcs")" $BSM_ROOT/.bsm-funcs
-    cp -f "$(find $repo -type f -name ".bsm-ac")" /etc/bash_completion.d/bsm-ac
-    cp -f "$(find $repo -type f -name ".help")" $BSM_ROOT/.help
-    cp -f "$(find $repo -type f -name ".install-help")" $BSM_ROOT/.install-help
-    if [[ ! -e $BSM_ROOT/.config ]]; then
-      cp -f "$(find $repo -type f -name "bsm.config")" $BSM_ROOT/.config
-    fi
-    cp -rf "$(find $repo -type d -name "tools")" $BSM_ROOT/
-    sudo chmod 644 $BSM_ROOT/.config
-    sudo chmod 755 /usr/local/bin/bsm
-    sudo chmod 755 /usr/local/sbin/bsm-install
+  # Handle Git Bash integration
+  cp -f "$(find $repo -type f -name "bsm")" ~/bin/bsm && echo "Copy of BSM added to user registry!"
+  cp -f "$(find $repo -type f -name "rbsm")" ~/bin/rbsm
+  cp -f "$(find $repo -type f -name "bsm-install")" ~/bin/bsm-install && echo "Installer copied to user registry!"
+  cp -f "$(find $repo -type f -name ".version")" $BSM_ROOT/.version
+  cp -f "$(find $repo -type f -name ".vars")" $BSM_ROOT/.vars
+  cp -f "$(find $repo -type f -name ".funcs")" $BSM_ROOT/.funcs
+  # cp -f "$(find $repo -type f -name "bsm-ac.sh")" /etc/bash_completion.d/bsm
+  cp -f "$(find $repo -type f -name ".help")" $BSM_ROOT/.help
+  cp -f "$(find $repo -type f -name ".install-help")" $BSM_ROOT/.install-help
+  if [[ ! -e $BSM_ROOT/.cfg ]]; then
+    cp -f "$(find $repo -type f -name ".cfg")" $BSM_ROOT/.cfg
   fi
+  cp -rf "$(find $repo -type d -name "tools")" $BSM_ROOT/
 }
+
 install() {
   echo "Installing..."
+  [ ! -d ~/bin ] && mkdir ~/bin
+  # if [ `command -v ri` ]; then
+  #   read -p "Repo Installer found! Would you like to install via 'ri'? [Y\n] " yn
+  #   if [[ "${yn,}" == "y" ]]; then 
+  #     cd $repo; ri
+  #     exit
+  #   fi
+  # fi
   echo "Setting up logging and scripts folders..."
   if [ ! -d "$BSM_ROOT" ]; then
     [ $MSYSTEM ] && mkdir $BSM_ROOT || sudo mkdir $BSM_ROOT
@@ -75,27 +60,13 @@ install() {
     [ ! $MSYSTEM ] && sudo chmod 666 $log
   fi
 
-  # Check newer versions
-  if [[ "$(cat $BSM_ROOT/.version | head -1)" != "$(cat "$repo/.version" | head -1)" || "$(cat $BSM_ROOT/.version | tail -1)" != "$(cat "$repo/.version" | tail -1)" ]]; then
-    read -p "Newer version of BSM is available, would you like to install? [Y/n]" yn
-    if [[ "${yn,}" == "y" ]]; then
-      echo "Installing new version of BSM..."
-      cpdeps
-    else
-      echo "Keeping old version of BSM..."
-    fi
-  else
-    if [[ "$1" == "-f" ]]; then
-      echo "Force installing even though current is latest..."
-      cpdeps
-    else
-      echo "Current version is up to date!"
-    fi
-  fi
+  echo "Copying program files..."
+  cpdeps
+
   echo "Updating PATH..."
   if [[ "$(echo "$PATH" | grep $BSM_ROOT)" == "" ]]; then
     if [[ "$(command -v chpath)" != "" ]]; then
-      chpath add $BSM_ROOT/tools $BSM_SCRIPTS $BSM_SCRIPTS/_node $BSM_SCRIPTS/_python $BSM_SCRIPTS/_ruby $BSM_SCRIPTS/_lisp $BSM_SCRIPTS/_power
+      chpath add $BSM_ROOT/tools $BSM_SCRIPTS $BSM_SCRIPTS/_node $BSM_SCRIPTS/_python $BSM_SCRIPTS/_ruby $BSM_SCRIPTS/_lisp $BSM_SCRIPTS/_power $BSM_SCRIPTS/_perl
       if [ -e ~/.path ]; then
         echo "PATH updated successfully via chpath"
       else
@@ -104,7 +75,7 @@ install() {
     else
       #This assumes you haven't modified the original bashrc file with your own things that don't end in 'fi'
       echo "### BSM2" >> $HOME/.bashrc
-      echo "export PATH=\"\$PATH:$BSM_ROOT/tools:$BSM_SCRIPTS:$BSM_SCRIPTS/_node:$BSM_SCRIPTS/_python:$BSM_SCRIPTS/_ruby:$BSM_SCRIPTS/_lisp:$BSM_SCRIPTS/_power\"" >> $HOME/.bashrc
+      echo "export PATH=\"\$PATH:$BSM_ROOT/tools:$BSM_SCRIPTS:$BSM_SCRIPTS/_node:$BSM_SCRIPTS/_python:$BSM_SCRIPTS/_ruby:$BSM_SCRIPTS/_lisp:$BSM_SCRIPTS/_power:$BSM_SCRIPTS/_perl\"" >> $HOME/.bashrc
       # source ~/.bashrc #Attempt reload of PATH
     fi
   fi
@@ -302,6 +273,28 @@ search_args() {
       shift
       clear_bsm $1
       exit;;
+    -R | --ri-fin )
+      [ ! $MSYSTEM ] && sudo chgrp $USER $BSM_ROOT
+      [ ! $MSYSTEM ] && sudo chown $USER $BSM_ROOT
+      [ ! $MSYSTEM ] && sudo chmod 666 $log
+      [ ! $MSYSTEM ] && sudo chmod 666 $errlog
+      echo "Updating PATH..."
+      if [[ "$(echo "$PATH" | grep $BSM_ROOT)" == "" ]]; then
+        if [[ "$(command -v chpath)" != "" ]]; then
+          chpath add $BSM_ROOT/tools $BSM_SCRIPTS $BSM_SCRIPTS/_node $BSM_SCRIPTS/_python $BSM_SCRIPTS/_ruby $BSM_SCRIPTS/_lisp $BSM_SCRIPTS/_power
+          if [ -e ~/.path ]; then
+            echo "PATH updated successfully via chpath"
+          else
+            echo "There was an unexpected error while adding path via chpath"
+          fi
+        else
+          #This assumes you haven't modified the original bashrc file with your own things that don't end in 'fi'
+          echo "### BSM2" >> $HOME/.bashrc
+          echo "export PATH=\"\$PATH:$BSM_ROOT/tools:$BSM_SCRIPTS:$BSM_SCRIPTS/_node:$BSM_SCRIPTS/_python:$BSM_SCRIPTS/_ruby:$BSM_SCRIPTS/_lisp:$BSM_SCRIPTS/_power\"" >> $HOME/.bashrc
+          # source ~/.bashrc #Attempt reload of PATH
+        fi
+      fi
+      ;;
   esac
 }
 
