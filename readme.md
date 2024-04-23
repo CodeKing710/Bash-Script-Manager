@@ -1,3 +1,6 @@
+# BSM HAS BEEN MOVED TO A NEW REPO!
+## If you would still like to use this verison of bsm this one still works but has much overhead and some bashisms that haven't been handled yet!
+
 # Bash Script Manager (v2)
 
 This is a local script manager that allows you to add custom scripts to your system without affecting the baseline OS scripts.
